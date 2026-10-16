@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070b16">
+<title>JARVIS • Personal Assistant</title>
+<link rel="manifest" href="manifest.json">
+<style>
+:root{color-scheme:dark;--bg:#070b16;--panel:#101a2d;--blue:#55c8ff;--muted:#9eb2c9;--line:#233753}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% 0%,#142b4a 0%,var(--bg) 55%);color:#eef7ff;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh}
+main{max-width:680px;margin:auto;padding:22px 16px 34px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{letter-spacing:.22em;font-weight:800;font-size:1.05rem}.status{font-size:.78rem;color:var(--blue);border:1px solid #245b7a;padding:6px 9px;border-radius:999px}
+.hero{text-align:center;padding:28px 0 20px}
+.orb{width:148px;height:148px;margin:0 auto 16px;border-radius:50%;display:grid;place-items:center;border:1px solid #4dbfff88;box-shadow:0 0 28px #28aaff33,inset 0 0 28px #28aaff22;background:radial-gradient(circle,#153d60,#0b1425 68%);position:relative}
+.orb:before,.orb:after{content:"";position:absolute;inset:-9px;border:1px solid #50c7ff55;border-radius:50%;animation:pulse 3s infinite}
+.orb:after{inset:-19px;animation-delay:1.3s}
+.orb span{font-size:2.5rem;color:var(--blue);text-shadow:0 0 20px #55c8ff}
+@keyframes pulse{0%{transform:scale(.94);opacity:.8}100%{transform:scale(1.12);opacity:0}}
+h1{font-size:1.55rem;margin:0 0 6px}p{color:var(--muted);line-height:1.5;margin:6px 0}
+.card{background:#0e1829dd;border:1px solid var(--line);border-radius:18px;padding:15px;margin:14px 0}
+.row{display:flex;gap:9px;flex-wrap:wrap}.row>*{flex:1}
+button,input{font:inherit;border-radius:12px;border:1px solid #294361;background:#13233a;color:#eff8ff;padding:12px}
+button{cursor:pointer;font-weight:650}button.primary{background:linear-gradient(135deg,#168fd1,#2458b9);border-color:#55c8ff}button:active{transform:scale(.99)}
+input{width:100%;min-width:0}label{display:block;font-size:.86rem;color:var(--muted);margin:10px 0 5px}
+#log{min-height:74px;max-height:260px;overflow:auto;white-space:pre-wrap;font-size:.95rem}
+.bubble{padding:9px 11px;border-radius:12px;margin:7px 0;line-height:1.45}.user{background:#12395a;margin-left:18px}.assistant{background:#172236;margin-right:18px}
+.small{font-size:.78rem;color:var(--muted)}.warn{color:#ffd68a}.section-title{font-size:1rem;margin:0 0 8px}
+footer{text-align:center;color:#7188a2;font-size:.75rem;padding-top:12px}
+</style>
+</head>
+<body>
+<main>
+<header><div class="brand">J A R V I S</div><div id="status" class="status">SYSTEM READY</div></header>
+<section class="hero">
+<div class="orb"><span>◉</span></div>
+<h1>Personal AI Assistant</h1>
+<p>Voice controls • Quick commands • Spoken replies</p>
+</section>
+<section class="card">
+<h2 class="section-title">Talk to JARVIS</h2>
+<div id="log" aria-live="polite"><div class="bubble assistant">Systems online. Tap the microphone and speak a command.</div></div>
+<div class="row" style="margin-top:10px">
+<button id="listen" class="primary">🎙️ Speak</button>
+<button id="stop">■ Stop voice</button>
+</div>
+<form id="chatForm" class="row" style="margin-top:9px">
+<input id="message" placeholder="Type a command…" autocomplete="off" aria-label="Message">
+<button class="primary" type="submit" style="flex:0 0 auto">Send</button>
+</form>
+<p class="small">Voice recognition depends on your browser and may require internet. This starter does not listen continuously in the background.</p>
+</section>
+<section class="card">
+<h2 class="section-title">Quick setup</h2>
+<label for="dadNumber">Dad's phone number (optional)</label>
+<input id="dadNumber" inputmode="tel" placeholder="Enter number, e.g. +91…">
+<div class="row" style="margin-top:9px"><button id="saveDad">Save number</button><button id="test">Test voice reply</button></div>
+<p class="small">The number is saved only in this browser on this device. The call command opens the phone dialer; tap Call yourself.</p>
+</section>
+<section class="card">
+<h2 class="section-title">Try these commands</h2>
+<p>• “Open Mobile Legends”</p><p>• “Call Dad”</p><p>• “What time is it?”</p><p>• “Turn on flashlight” (not supported in this browser starter)</p>
+</section>
+<section class="card">
+<h2 class="section-title">Online AI connection</h2>
+<p>This first version handles basic commands locally. To add real AI conversations, we’ll connect a secure backend next. Don’t paste a private API key into this page or share it in chat.</p>
+<p class="small warn">Important: Android may block browser voice recognition with the screen off. Always-on “Hey Jarvis” requires a native Android app/service and a compatible wake-word engine.</p>
+</section>
+<footer>JARVIS starter • Built for phone-first testing</footer>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const log=$('log');
+function addBubble(text,who='assistant'){const d=document.createElement('div');d.className='bubble '+who;d.textContent=text;log.appendChild(d);log.scrollTop=log.scrollHeight;}
+function speak(text){if(!('speechSynthesis'in window))return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.rate=1;u.pitch=.95;window.speechSynthesis.speak(u);}
+function reply(text){addBubble(text,'assistant');speak(text);}
+function savedDad(){return localStorage.getItem('jarvis_dad_number')||'';}
+$('dadNumber').value=savedDad();
+$('saveDad').onclick=()=>{localStorage.setItem('jarvis_dad_number',$('dadNumber').value.trim());reply('Dad’s number saved on this device.');};
+$('test').onclick=()=>reply('Hello. JARVIS voice output is working.');
+$('stop').onclick=()=>{if('speechSynthesis'in window)window.speechSynthesis.cancel();if(window.recognition)window.recognition.stop();$('status').textContent='VOICE STOPPED';};
+function runCommand(raw){
+ const s=raw.toLowerCase().trim();
+ if(!s)return;
+ addBubble(raw,'user');
+ if(s.includes('what time')||s==='time'||s.includes('current time')){reply('It is '+new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})+'.');return;}
+ if(s.includes('call dad')||s==='call father'){
+  const n=savedDad();
+  if(n){reply('Opening the phone dialer for Dad. Please confirm the call on your phone.');location.href='tel:'+n.replace(/[^\d+]/g,'');}
+  else{reply('Please enter and save Dad’s number in Quick setup first.');}
+  return;
+ }
+ if(s.includes('open mlbb')||s.includes('open mobile legends')||s.includes('launch mlbb')||s.includes('launch mobile legends')){
+  reply('I’ll try opening Mobile Legends. If Android does not open it, launch it manually.'); 
+  // Android browsers generally cannot launch arbitrary apps without a configured intent/deep link.
+  const intent='intent://#Intent;package=com.mobile.legends;end';
+  setTimeout(()=>{location.href=intent;},250);return;
+ }
+ if(s.includes('flashlight')||s.includes('torch')){reply('Flashlight control is not available in this browser version. We can add it in a native Android app later.');return;}
+ if(s.includes('hey jarvis')){reply('I’m here. Tell me what you need.');return;}
+ reply('I can currently handle basic commands like time, call Dad, and opening Mobile Legends. Online AI chat is the next build step.');
+}
+$('chatForm').addEventListener('submit',e=>{e.preventDefault();const v=$('message').value;$('message').value='';runCommand(v);});
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(SR){
+ const rec=new SR();window.recognition=rec;rec.lang='en-IN';rec.interimResults=false;rec.maxAlternatives=1;
+ rec.onstart=()=>{$('status').textContent='LISTENING…';$('listen').textContent='🎙️ Listening…';};
+ rec.onend=()=>{$('status').textContent='SYSTEM READY';$('listen').textContent='🎙️ Speak';};
+ rec.onerror=()=>{reply('I could not access speech recognition. Check microphone permission or type your command instead.');};
+ rec.onresult=e=>runCommand(e.results[0][0].transcript);
+ $('listen').onclick=()=>{try{rec.start();}catch(e){reply('Voice input is already starting. Please wait a moment.');}};
+}else{
+ $('listen').onclick=()=>reply('Speech recognition is not supported in this browser. Try Chrome, or type a command.');
+}
+if('serviceWorker'in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}
+</script>
+</body>
+</html>
